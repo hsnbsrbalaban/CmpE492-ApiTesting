@@ -2,14 +2,22 @@ from mitmproxy import http
 from mitmproxy import ctx
 
 def duplicateAndRedirect(flow):
+
     # Avoid an infinite loop by not replaying already replayed requests
     if flow.request.is_replay:
         return
+
+    print("Original Request: ", end="")
+    print(flow.request.url)
+    print("Original Response: ", end="")
+    print(flow.response.content.decode("utf-8"))
+    print()
 
     oldPath = flow.request.path
     oldMethod = flow.request.method
     oldHeaders = flow.request.headers
     oldContent = flow.request.content
+    oldResponse = flow.response.content.decode("utf-8")
 
     flow = flow.copy()
     # Only interactive tools have a view. If we have one, add a duplicate entry
@@ -17,17 +25,32 @@ def duplicateAndRedirect(flow):
     if "view" in ctx.master.addons:
         ctx.master.commands.call("view.flows.add", [flow])
 
-    flow.request.host = "apitesting-env.eba-bv6gapyk.eu-central-1.elasticbeanstalk.com"
+    flow.request.host = "main.apitesting.info"
     flow.request.path = "/capture"
-    flow.request.query["content"] = oldContent
-    flow.request.query["method"] = oldMethod
-    flow.request.query["path"] = oldPath
-    flow.request.query["headers"] = " ".join(oldHeaders)
+
+    wrappedFlow = {
+        "content": oldContent,
+        "method": oldMethod,
+        "path": oldPath,
+        "headers": " ".join(oldHeaders),
+        "response": oldResponse
+    }
+
+    flow.request.content = str.encode(str(wrappedFlow))
     
+    print("Duplicated Request: ", end="")
+    print(flow.request.content)
+    print()
+
     ctx.master.commands.call("replay.client", [flow])
 
-def request(flow: http.HTTPFlow) -> None:
-    print(flow.request)
-    if flow.request.host == "demoapi-env.eba-qbx3xxbv.eu-central-1.elasticbeanstalk.com":
+def fuzz(flow) -> None:
+    pass
+    
+def response(flow: http.HTTPFlow) -> None:
+    if flow.request.host == "demo.apitesting.info":
         duplicateAndRedirect(flow)
+
+
+    duplicatedResponse = flow.response
     
