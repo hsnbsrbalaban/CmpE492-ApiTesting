@@ -3,7 +3,7 @@ package com.apitesting.builder;
 import com.apitesting.model.Project;
 
 public final class ProjectBuilder {
-    private String name;
+    private String hostname;
 
     private ProjectBuilder() {
     }
@@ -12,14 +12,14 @@ public final class ProjectBuilder {
         return new ProjectBuilder();
     }
 
-    public ProjectBuilder withName(String name) {
-        this.name = name;
+    public ProjectBuilder withHostname(String hostname) {
+        this.hostname = hostname;
         return this;
     }
 
     public Project build() {
         Project project = new Project();
-        project.setName(name);
+        project.setHostname(hostname);
         return project;
     }
 }

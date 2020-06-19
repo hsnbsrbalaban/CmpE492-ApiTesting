@@ -2,7 +2,6 @@ package com.apitesting.controller;
 
 import com.apitesting.builder.ProjectBuilder;
 import com.apitesting.model.Project;
-import com.apitesting.repository.ProjectRepository;
 import com.apitesting.service.ProjectService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,16 +29,13 @@ public class BaseControllerTest {
     @Mock
     ProjectService projectService;
 
-    @Mock
-    ProjectRepository projectRepository;
-
     private static final String NAME = "test-app-name";
 
     @Test
     public void it_should_get_projects() {
         // setup
-        Project project1 = ProjectBuilder.aProject().withName("project1").build();
-        Project project2 = ProjectBuilder.aProject().withName("project2").build();
+        Project project1 = ProjectBuilder.aProject().withHostname("project1").build();
+        Project project2 = ProjectBuilder.aProject().withHostname("project2").build();
 
         given(projectService.getProjects()).willReturn(Arrays.asList(project1, project2));
 

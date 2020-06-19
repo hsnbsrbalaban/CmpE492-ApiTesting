@@ -1,5 +1,21 @@
 from mitmproxy import http
 from mitmproxy import ctx
+import json
+
+def beautifyHeaders(headers):
+    beautified = "{"
+    for header in headers:
+        beautified += "'" + header + "'"
+        beautified += ":"
+        beautified += "'" + headers[header] + "'"
+        beautified += ","
+
+    if (beautified[-1] == ","):
+        beautified = beautified[:-1]
+    beautified += "}"
+
+    return beautified
+
 
 def duplicateAndRedirect(flow):
 
@@ -7,55 +23,42 @@ def duplicateAndRedirect(flow):
     if flow.request.is_replay:
         return
 
-    print("Original Request: ", end="")
-    print(flow.request.url)
-    print("Original Response: ", end="")
-    print(flow.response.content.decode("utf-8"))
-    print()
-
-    oldPath = flow.request.path
+    oldHost = flow.request.host
+    oldUrl = flow.request.url
     oldMethod = flow.request.method
-    oldHeaders = flow.request.headers
-    oldContent = flow.request.content
-    oldResponse = flow.response.content.decode("utf-8")
+    oldHeaders = beautifyHeaders(flow.request.headers)
+    oldContent = flow.request.get_text()
+    oldResponse = flow.response.get_text()
 
     flow = flow.copy()
+
     # Only interactive tools have a view. If we have one, add a duplicate entry
     # for our flow.
     if "view" in ctx.master.addons:
         ctx.master.commands.call("view.flows.add", [flow])
 
-    flow.request.host = "main.apitesting.info"
-    flow.request.path = "/capture"
+    # set duplicated request's method and url so that it is routed to main server
+    flow.request.method = "POST"
+    flow.request.url = "http://main.apitesting.info/capture"
 
+    # wrap original request and response's information that will be sent to main server
     wrappedFlow = {
         "content": oldContent,
         "method": oldMethod,
-        "path": oldPath,
-        "headers": " ".join(oldHeaders),
-        "response": oldResponse
+        "headers": oldHeaders,
+        "response": oldResponse,
+        "url": oldUrl,
+        "hostname": oldHost
     }
 
-    flow.request.content = str.encode(str(wrappedFlow))
-    
-    print("Duplicated Request: ", end="")
-    print(flow.request.content)
-    print()
+    flow.request.headers["Content-Type"] = "application/json"
+    flow.request.content = str.encode(json.dumps(wrappedFlow))
 
     ctx.master.commands.call("replay.client", [flow])
 
 def fuzz(flow) -> None:
     pass
-
-# def request(flow: http.HTTPFlow) -> None:
-#     if flow.request.host == "demo.apitesting.info":
-#         duplicateAndRedirect(flow)
-#         fuzz(flow)
     
 def response(flow: http.HTTPFlow) -> None:
-    if flow.request.host == "demo.apitesting.info":
-        duplicateAndRedirect(flow)
-
-
-    duplicatedResponse = flow.response
-
+    # Duplicate all requests, requests that will be saved are filtered at the server
+    duplicateAndRedirect(flow)
