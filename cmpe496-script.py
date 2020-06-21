@@ -23,6 +23,7 @@ def duplicateAndRedirect(flow):
     if flow.request.is_replay:
         return
 
+    # Save original request's information
     oldHost = flow.request.host
     oldUrl = flow.request.url
     oldMethod = flow.request.method
@@ -50,7 +51,7 @@ def duplicateAndRedirect(flow):
         "response": oldResponse,
         "url": oldUrl,
         "hostname": oldHost,
-		  "statusCode": oldStatusCode
+		    "statusCode": oldStatusCode
     }
 
     flow.request.headers["Content-Type"] = "application/json"
