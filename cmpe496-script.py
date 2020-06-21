@@ -30,6 +30,7 @@ def duplicateAndRedirect(flow):
     oldHeaders = beautifyHeaders(flow.request.headers)
     oldContent = flow.request.get_text()
     oldResponse = flow.response.get_text()
+    oldStatusCode = flow.response.status_code
 
     flow = flow.copy()
 
@@ -49,7 +50,8 @@ def duplicateAndRedirect(flow):
         "headers": oldHeaders,
         "response": oldResponse,
         "url": oldUrl,
-        "hostname": oldHost
+        "hostname": oldHost,
+	"statusCode": oldStatusCode
     }
 
     flow.request.headers["Content-Type"] = "application/json"

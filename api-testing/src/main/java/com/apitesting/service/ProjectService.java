@@ -1,45 +1,45 @@
 package com.apitesting.service;
 
 import com.apitesting.model.Project;
-import com.apitesting.repository.ProjectRepository;
+import com.apitesting.repository.DynamoDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Random;
 
 @Service
 public class ProjectService {
 
-    private final ProjectRepository projectRepository;
-    private final Random rand = new Random();
+    private final DynamoDBRepository repository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository) {
-        this.projectRepository = projectRepository;
+    public ProjectService(DynamoDBRepository repository) {
+        this.repository = repository;
     }
 
     public boolean exists(String name) {
-        return projectRepository.exists(name);
+        return getProject(name) != null;
     }
 
     public Project getProject(String name) {
-        return projectRepository.findProjectByName(name).orElse(null);
+        return repository.getProject(name);
     }
 
     public List<Project> getProjects() {
-        return projectRepository.findAll();
+        return repository.getProjects();
     }
 
     public void createProject(String name) {
         Project project = new Project();
-        project.setName(name);
-        project.setImportance(rand.nextInt());
+        project.setHostname(name);
 
-        projectRepository.save(project);
+        repository.insertProject(project);
     }
 
     public void deleteProject(String name) {
-        projectRepository.delete(name);
+        Project project = new Project();
+        project.setHostname(name);
+
+        repository.deleteProject(project);
     }
 }

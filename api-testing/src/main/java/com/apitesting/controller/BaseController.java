@@ -1,52 +1,74 @@
 package com.apitesting.controller;
 
-import com.apitesting.model.CapturedRequest;
+import com.apitesting.model.CapturedFlow;
 import com.apitesting.model.Project;
+import com.apitesting.repository.DynamoDBRepository;
 import com.apitesting.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin
 @RestController
 public class BaseController {
     private final ProjectService projectService;
+    private final DynamoDBRepository repository;
 
     @Autowired
-    public BaseController(ProjectService projectService) {
+    public BaseController(ProjectService projectService, DynamoDBRepository repository) {
         this.projectService = projectService;
+        this.repository = repository;
     }
 
-    @GetMapping("/capture")
-    public ResponseEntity capture(@RequestParam(value = "method") String method, @RequestParam(value = "path") String path,
-                                  @RequestParam(value = "headers") String headers, @RequestParam(value = "content") String content) {
-        CapturedRequest request = new CapturedRequest();
-        request.setMethod(method);
-        request.setPath(path);
-        request.setHeaders(headers);
-        request.setContent(content);
-        return new ResponseEntity<>(request, HttpStatus.OK);
+    @GetMapping("/")
+    public ResponseEntity welcome() {
+        return new ResponseEntity("Welcome", HttpStatus.OK);
     }
 
-    @PostMapping("/create-project")
-    public ResponseEntity createProject(@RequestParam(value = "app-name") String appName) {
-        if (projectService.exists(appName)) {
-            return new ResponseEntity("Project " + appName + " already exists", HttpStatus.BAD_REQUEST);
+    @PostMapping("/capture")
+    public ResponseEntity capture(@RequestBody CapturedFlow flow) {
+        List<Project> projects = repository.getProjects();
+
+        if (!CollectionUtils.isEmpty(projects) &&
+                projects.stream().map(Project::getHostname).anyMatch(host -> host.equals(flow.getHostname()))) {
+            repository.insertRequest(flow);
+            return new ResponseEntity("Request saved", HttpStatus.OK);
         }
 
-        projectService.createProject(appName);
-        return new ResponseEntity("Project " + appName + " created", HttpStatus.OK);
+        return new ResponseEntity("Request not saved, no matching project with request's hostname", HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete-project")
-    public ResponseEntity deleteProject(@RequestParam(value = "app-name") String appName) {
-        if (!projectService.exists(appName)) {
-            return new ResponseEntity("Project " + appName + " does not exists", HttpStatus.NOT_FOUND);
+    @GetMapping("/requests/{hostname}")
+    public ResponseEntity getRequestByHostname(@PathVariable String hostname) {
+        return new ResponseEntity(repository.getRequests(hostname), HttpStatus.OK);
+    }
+
+    @GetMapping("/requests/{hostname}/id/{id}")
+    public ResponseEntity getRequestById(@PathVariable String hostname, @PathVariable String id) {
+        return new ResponseEntity(repository.getRequest(hostname, id), HttpStatus.OK);
+    }
+
+    @PostMapping("/createProject")
+    public ResponseEntity createProject(@RequestParam(value = "hostname") String hostname) {
+        if (projectService.exists(hostname)) {
+            return new ResponseEntity("Project " + hostname + " already exists", HttpStatus.BAD_REQUEST);
         }
 
-        projectService.deleteProject(appName);
+        projectService.createProject(hostname);
+        return new ResponseEntity("Project " + hostname + " created", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteProject")
+    public ResponseEntity deleteProject(@RequestParam(value = "hostname") String hostname) {
+        if (!projectService.exists(hostname)) {
+            return new ResponseEntity("Project " + hostname + " does not exists", HttpStatus.NOT_FOUND);
+        }
+
+        projectService.deleteProject(hostname);
         return new ResponseEntity(HttpStatus.OK);
     }
 

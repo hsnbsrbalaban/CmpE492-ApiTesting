@@ -1,32 +1,18 @@
 package com.apitesting.model;
 
-import java.util.Objects;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
+@DynamoDBTable(tableName = "Project")
 public class Project {
-    private String name;
-    private Integer importance;
+    private String hostname;
 
-    public String getName() {
-        return name;
+    @DynamoDBHashKey
+    public String getHostname() {
+        return hostname;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getImportance() {
-        return importance;
-    }
-
-    public void setImportance(Integer importance) {
-        this.importance = importance;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Project project = (Project) o;
-        return Objects.equals(name, project.name);
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 }

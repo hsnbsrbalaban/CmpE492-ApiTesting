@@ -1,2 +1,6 @@
 # necessary for Elastic Beanstalk deployment
-server.port=5000
+server:
+  port: 5000
+
+
+
