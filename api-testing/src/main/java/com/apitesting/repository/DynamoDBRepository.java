@@ -17,6 +17,7 @@ public class DynamoDBRepository {
             new DynamoDBMapper(AmazonDynamoDBClientBuilder.standard().build());
 
     public void insertRequest(CapturedFlow request) {
+        request.setTimestamp(System.currentTimeMillis());
         mapper.save(request);
     }
 
