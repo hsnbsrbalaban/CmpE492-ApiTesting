@@ -51,7 +51,7 @@ def duplicateAndRedirect(flow):
         "response": oldResponse,
         "url": oldUrl,
         "hostname": oldHost,
-	"statusCode": oldStatusCode
+        "statusCode": oldStatusCode
     }
 
     flow.request.headers["Content-Type"] = "application/json"
