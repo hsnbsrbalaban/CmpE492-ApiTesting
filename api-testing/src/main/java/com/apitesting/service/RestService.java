@@ -2,10 +2,12 @@ package com.apitesting.service;
 
 import com.apitesting.model.CapturedFlow;
 import com.apitesting.model.Response;
-import org.apache.http.HttpException;
 import org.json.JSONObject;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -24,7 +26,7 @@ public class RestService {
         String url = request.getUrl();
         HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
-        HttpHeaders headers = generateHeaders(request.getHeaders().replaceAll("'", "\""));
+        HttpHeaders headers = generateHeaders(request.getHeaders());
 
         if (Objects.isNull(headers)) {
             return null;

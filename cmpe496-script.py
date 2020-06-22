@@ -5,9 +5,9 @@ import json
 def beautifyHeaders(headers):
     beautified = "{"
     for header in headers:
-        beautified += "'" + header + "'"
+        beautified += "\"" + header + "\""
         beautified += ":"
-        beautified += "'" + headers[header] + "'"
+        beautified += "\"" + headers[header] + "\""
         beautified += ","
 
     if (beautified[-1] == ","):
