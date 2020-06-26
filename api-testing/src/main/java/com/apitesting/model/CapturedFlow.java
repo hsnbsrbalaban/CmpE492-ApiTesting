@@ -97,12 +97,12 @@ public class CapturedFlow {
         this.timestamp = timestamp;
     }
 
-    @DynamoDBAttribute
-    public boolean getModified() {
+    @DynamoDBAttribute(attributeName = "modified")
+    public boolean isModified() {
         return modified;
     }
 
-    public void setModified(Boolean modified) {
+    public void setModified(boolean modified) {
         this.modified = modified;
     }
 

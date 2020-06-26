@@ -43,6 +43,8 @@ public class RestService {
         } catch (HttpStatusCodeException ex) {
             response.setBody(ex.getResponseBodyAsString());
             response.setStatusCode(ex.getRawStatusCode());
+        } catch (Exception ex) {
+            return null;
         }
 
         return response;
