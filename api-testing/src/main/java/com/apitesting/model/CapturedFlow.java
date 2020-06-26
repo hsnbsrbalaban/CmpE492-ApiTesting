@@ -13,6 +13,7 @@ public class CapturedFlow {
     private String response;
     private Integer statusCode;
     private Long timestamp;
+    private boolean modified = false;
 
     @DynamoDBHashKey
     public String getHostname() {
@@ -96,8 +97,18 @@ public class CapturedFlow {
         this.timestamp = timestamp;
     }
 
+    @DynamoDBAttribute
+    public boolean getModified() {
+        return modified;
+    }
+
+    public void setModified(Boolean modified) {
+        this.modified = modified;
+    }
+
     public void updateResponseInfo(Response response) {
         this.setResponse(response.getBody());
         this.setStatusCode(response.getStatusCode());
+        this.setModified(true);
     }
 }
