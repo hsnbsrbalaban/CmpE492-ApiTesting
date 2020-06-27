@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">CmpE492-ApiTesting</string>
+    <string name="type_your_name_string_response">Type your name (String Response)</string>
+    <string name="send">SEND</string>
+    <string name="get_req_to_greeting">GET req to greeting:</string>
+    <string name="post_req_to_greeting">POST req to greeting:</string>
+    <string name="post_req_to_greetingwithwait">POST req to greetingWithWait:</string>
+    <string name="type_your_name_json_response">Type your name (JSON Response)</string>
+    <string name="get_req_to_greetingwithwait">GET req to greetingWithWait:</string>
+</resources>
