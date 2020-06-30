@@ -1,0 +1,2 @@
+rootProject.name='CmpE492-ApiTesting'
+include ':app'
